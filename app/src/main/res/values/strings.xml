@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Tictactoe</string>
+    <string name="access_join">AccessJoin</string>
+    <string name="create_room">Create Room</string>
+    <string name="error">error</string>
+    <string name="loading">loading</string>
+    <string name="username">User Name</string>
+    <string name="room_id">Room ID</string>
+    <string name="exit_room">Exit</string>
+    <string name="room_id_null">Room id is null</string>
+    <string name="back_pressed">Вы точно хотите выйти?</string>
+    <string name="loading_room">Room loading...</string>
+    <string name="update_table">Update Table</string>
+    <string name="retry">Retry</string>
+</resources>
