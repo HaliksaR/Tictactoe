@@ -48,6 +48,12 @@ class HomeFragment : BindingFragment<HomeFragmentBinding>() {
     }
 
     private fun subscribeInput() {
+        lifecycleScope.launchWhenStarted {
+            val text = binding.roomIdInput.text?.toString()
+            if (text != null) {
+                _actionFlow.emit(HomeAction.RoomInput(text))
+            }
+        }
         binding.roomIdInput.asFlow()
             .onEach {
                 _actionFlow.emit(HomeAction.RoomInput(it))
