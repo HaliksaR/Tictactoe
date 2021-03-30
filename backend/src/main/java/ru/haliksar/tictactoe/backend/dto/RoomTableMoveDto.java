@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class RoomTableMoveDto {
-    long roomId;
-    String userId;
+    int roomId;
+    int userId;
     int index;
 }

@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class RoomIdDto {
-    private long roomId;
+    private int roomId;
 }
