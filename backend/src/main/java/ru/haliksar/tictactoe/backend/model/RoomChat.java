@@ -24,9 +24,7 @@ public class RoomChat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String userId;
-
-    private String nickname;
+    private int userId;
 
     @Size(max = 500, message = "А поменьше 500 символов нельзя?")
     private String message;
