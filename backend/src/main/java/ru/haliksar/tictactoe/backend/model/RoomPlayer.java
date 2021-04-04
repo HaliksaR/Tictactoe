@@ -9,7 +9,7 @@ import lombok.Data;
 @Entity(name = "RoomPlayer")
 public class RoomPlayer {
     @Id
-    private int id;
+    private String id;
 
     private Marker marker;
 }

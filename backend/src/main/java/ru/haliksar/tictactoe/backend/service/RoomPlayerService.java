@@ -13,9 +13,9 @@ public class RoomPlayerService {
 
     private final RoomPlayerRepository roomPlayerRepository;
 
-    public RoomPlayer createPlayer(int userId, Marker marker) {
+    public RoomPlayer createPlayer(String userId, Marker marker) {
 
-        RoomPlayer roomPlayer = roomPlayerRepository.findById(userId);
+        RoomPlayer roomPlayer = roomPlayerRepository.findById(userId).orElse(null);
         if (roomPlayer == null) {
             RoomPlayer player = new RoomPlayer();
             player.setId(userId);
@@ -27,8 +27,8 @@ public class RoomPlayerService {
         }
     }
 
-    public RoomPlayer getPlayer(int userId) {
-        return roomPlayerRepository.findById(userId);
+    public RoomPlayer getPlayer(String userId) {
+        return roomPlayerRepository.findById(userId).orElse(null);
     }
 
 }

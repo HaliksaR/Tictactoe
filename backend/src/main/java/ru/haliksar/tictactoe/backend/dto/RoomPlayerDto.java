@@ -6,7 +6,7 @@ import ru.haliksar.tictactoe.backend.model.RoomPlayer;
 
 @Data
 public class RoomPlayerDto {
-    private int id;
+    private String id;
     private Marker marker;
 
     public RoomPlayerDto(RoomPlayer roomPlayer) {
