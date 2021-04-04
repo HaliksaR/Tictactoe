@@ -1,5 +1,6 @@
 package ru.haliksar.tictactoe.backend.service;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -13,6 +14,10 @@ import ru.haliksar.tictactoe.backend.dto.RoomIdDto;
 import ru.haliksar.tictactoe.backend.dto.RoomLoginDto;
 import ru.haliksar.tictactoe.backend.dto.RoomMessageDto;
 import ru.haliksar.tictactoe.backend.dto.RoomTableMoveDto;
+import ru.haliksar.tictactoe.backend.event.events.SynchronizationCreateRoomEvent;
+import ru.haliksar.tictactoe.backend.event.events.SynchronizationLoginRoomEvent;
+import ru.haliksar.tictactoe.backend.event.events.SynchronizationSendMessageEvent;
+import ru.haliksar.tictactoe.backend.event.events.SynchronizationSetTableEvent;
 import ru.haliksar.tictactoe.backend.exception.RoomException;
 import ru.haliksar.tictactoe.backend.model.Marker;
 import ru.haliksar.tictactoe.backend.model.Room;
@@ -31,7 +36,6 @@ import static ru.haliksar.tictactoe.backend.model.RoomStatus.WIN_FIRST;
 import static ru.haliksar.tictactoe.backend.model.RoomStatus.WIN_NOTHING;
 import static ru.haliksar.tictactoe.backend.model.RoomStatus.WIN_SECOND;
 
-
 @Service
 @RequiredArgsConstructor
 public class RoomService {
@@ -45,12 +49,19 @@ public class RoomService {
 
     private final RoomCharRepository roomCharRepository;
 
-    public Room getRoom(int roomId) {
+    private final ApplicationEventPublisher eventPublisher;
+
+    public Room getRoom(long roomId) {
         return roomRepository.findById(roomId)
                 .orElseThrow(() -> new RoomException("Комната не найдена"));
     }
 
-    public RoomIdDto createRoom(int userId) {
+    public RoomIdDto createRoom(String userId) {
+        eventPublisher.publishEvent(new SynchronizationCreateRoomEvent(userId));
+        return createRoomSync(userId);
+    }
+
+    public RoomIdDto createRoomSync(String userId) {
         Room room = new Room();
         room.setRoomStatus(ACTIVE);
         RoomPlayer roomPlayer = roomPlayerService.createPlayer(userId, Marker.O);
@@ -59,6 +70,11 @@ public class RoomService {
     }
 
     public void loginRoom(RoomLoginDto roomLoginDto) {
+        loginRoomSync(roomLoginDto);
+        eventPublisher.publishEvent(new SynchronizationLoginRoomEvent(roomLoginDto));
+    }
+
+    public void loginRoomSync(RoomLoginDto roomLoginDto) {
         Room room = getRoom(roomLoginDto.getRoomId());
 
         if (room.getPlayers().contains(roomPlayerService.getPlayer(roomLoginDto.getUserId()))) {
@@ -75,6 +91,11 @@ public class RoomService {
     }
 
     public void setTable(RoomTableMoveDto table) {
+        setTableSync(table);
+        eventPublisher.publishEvent(new SynchronizationSetTableEvent(table));
+    }
+
+    public void setTableSync(RoomTableMoveDto table) {
         if (table.getIndex() >= 9) {
             throw new RoomException("выход за пределы поля");
         }
@@ -82,7 +103,7 @@ public class RoomService {
         Room room = getRoom(table.getRoomId());
         RoomPlayer player = roomPlayerService.getPlayer(table.getUserId());
 
-        if(!room.getPlayers().contains(player)) {
+        if (!room.getPlayers().contains(player)) {
             throw new RoomException("Данный игрок не состоит в этой комнате");
         }
 
@@ -155,7 +176,7 @@ public class RoomService {
     }
 
     private RoomTable setMarker(int index, Marker maker, Room room) {
-        if(roomTableRepository.findByIndexAndRoom(index, room) == null) {
+        if (roomTableRepository.findByIndexAndRoom(index, room) == null) {
             RoomTable roomTable = new RoomTable();
             roomTable.setIndex(index);
             roomTable.setMarker(maker);
@@ -166,16 +187,24 @@ public class RoomService {
         }
     }
 
-    public RoomDto getRoomDto(int roomId) {
-        Room room = getRoom(roomId);
-        return roomDtoTransformService.getRoomDto(room);
+    public RoomDto getRoomDto(RoomLoginDto roomLoginDto) {
+        Room room = getRoom(roomLoginDto.getRoomId());
+        if (!room.getPlayers().contains(roomPlayerService.getPlayer(roomLoginDto.getUserId()))) {
+            loginRoom(roomLoginDto);
+        }
+        return roomDtoTransformService.getRoomDto(getRoom(roomLoginDto.getRoomId()));
     }
 
     public void sendMessage(ChatDto chatDto) {
+        sendMessageSync(chatDto);
+        eventPublisher.publishEvent(new SynchronizationSendMessageEvent(chatDto));
+    }
+
+    public void sendMessageSync(ChatDto chatDto) {
         Room room = getRoom(chatDto.getRoomId());
         RoomPlayer player = roomPlayerService.getPlayer(chatDto.getUserId());
 
-        if(!room.getPlayers().contains(player)) {
+        if (!room.getPlayers().contains(player)) {
             throw new RoomException("Данный игрок не состоит в этой комнате");
         }
 

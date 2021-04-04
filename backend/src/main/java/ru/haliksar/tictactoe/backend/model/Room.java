@@ -22,7 +22,7 @@ import ru.haliksar.tictactoe.backend.exception.RoomException;
 public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
     private RoomStatus roomStatus;
 

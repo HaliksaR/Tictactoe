@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import ru.haliksar.tictactoe.backend.model.Room;
 
 @Repository
-public interface RoomRepository extends JpaRepository<Room, Integer> {
+public interface RoomRepository extends JpaRepository<Room, Long> {
 
 }
