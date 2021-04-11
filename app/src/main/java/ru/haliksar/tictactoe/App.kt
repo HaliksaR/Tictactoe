@@ -5,9 +5,11 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
-import ru.haliksar.tictactoe.core.coreModule
-import ru.haliksar.tictactoe.feature.home.di.homeModule
-import ru.haliksar.tictactoe.feature.room.di.roomModule
+import ru.haliksar.tictactoe.core.CoreModule
+import ru.haliksar.tictactoe.data.di.DataModule
+import ru.haliksar.tictactoe.domain.di.DomainModule
+import ru.haliksar.tictactoe.feature.home.di.HomeModule
+import ru.haliksar.tictactoe.feature.room.di.RoomModule
 
 class App: Application() {
 
@@ -16,7 +18,10 @@ class App: Application() {
         startKoin {
             androidLogger(Level.ERROR)
             androidContext(this@App)
-            modules(homeModule + roomModule + coreModule)
+            modules(CoreModule)
+            modules(DataModule + DomainModule)
+            modules(HomeModule)
+            modules(RoomModule)
         }
     }
 }

@@ -5,7 +5,8 @@ import org.koin.dsl.module
 import ru.haliksar.tictactoe.domain.usecese.SetTableItemUseCase
 import ru.haliksar.tictactoe.feature.room.presentation.RoomViewModel
 
-val roomModule = module {
-    single { SetTableItemUseCase(get()) }
-    viewModel { RoomViewModel(get(), get(), get()) }
+val RoomModule = module {
+    viewModel { (roomId: Long) ->
+        RoomViewModel(roomId, get(), get(), get())
+    }
 }

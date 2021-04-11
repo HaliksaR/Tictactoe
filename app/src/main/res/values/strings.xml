@@ -12,4 +12,11 @@
     <string name="loading_room">Room loading...</string>
     <string name="update_table">Update Table</string>
     <string name="retry">Retry</string>
+    <string name="exit">Exit</string>
+    <string name="win_first">win first</string>
+    <string name="win_second">win second</string>
+    <string name="win_nothing">win_nothing</string>
+    <string name="nickname">nickname</string>
+    <string name="incorrect_nickname">incorrect nickname</string>
+    <string name="incorrect_room_id">incorrect room id</string>
 </resources>

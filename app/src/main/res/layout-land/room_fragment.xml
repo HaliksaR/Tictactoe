@@ -157,13 +157,13 @@
                     android:layout_marginTop="20dp" />
 
                 <TextView
-                    android:id="@+id/player1"
+                    android:id="@+id/current_player"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp" />
 
                 <TextView
-                    android:id="@+id/player2"
+                    android:id="@+id/opponent_player"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp" />

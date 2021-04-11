@@ -1,45 +1,38 @@
 package ru.haliksar.tictactoe.data.datasource
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import ru.haliksar.tictactoe.core.Service
 import ru.haliksar.tictactoe.data.api.RoomApi
-import ru.haliksar.tictactoe.domain.entity.Marker
+import ru.haliksar.tictactoe.domain.entity.ChangeTable
+import ru.haliksar.tictactoe.domain.entity.LoginRoom
+import ru.haliksar.tictactoe.domain.entity.Player
 import ru.haliksar.tictactoe.domain.entity.Room
-import ru.haliksar.tictactoe.domain.entity.mockRoom
 
 interface RoomRemoteDataSource {
 
-    suspend fun create(userId: String): Long
+    suspend fun create(player: Player): Long
 
-    suspend fun get(roomId: Long, userId: String): Room
+    suspend fun get(roomId: Long, player: Player): Room
 
-    suspend fun setTable(roomId: Long, userId: String, index: Int): Room
+    suspend fun setTable(roomId: Long, player: Player, index: Int): Room
 }
 
 class RoomRemoteDataSourceImpl(
-    private val api: RoomApi
+    private val service: Service
 ) : RoomRemoteDataSource {
 
-    override suspend fun create(userId: String): Long =
-        withContext(Dispatchers.IO) {
-            445677
-//            api.create(userId)
+    override suspend fun create(player: Player): Long =
+        service(RoomApi::class, Dispatchers.IO) {
+            create(player).roomId
         }
 
-    override suspend fun get(roomId: Long, userId: String): Room =
-        withContext(Dispatchers.IO) {
-            mockRoom
-//            api.get(roomId, userId)
+    override suspend fun get(roomId: Long, player: Player): Room =
+        service(RoomApi::class, Dispatchers.IO) {
+            get(LoginRoom(roomId, player.userId, player.nickname))
         }
 
-    override suspend fun setTable(roomId: Long, userId: String, index: Int): Room =
-        withContext(Dispatchers.IO) {
-            val table = mutableListOf<Marker?>().apply {
-                addAll(mockRoom.table)
-                this[index] = Marker.X
-            }
-            mockRoom = mockRoom.copy(table = table)
-            mockRoom
-//            api.setTable(roomId, userId, index)
+    override suspend fun setTable(roomId: Long, player: Player, index: Int): Room =
+        service(RoomApi::class, Dispatchers.IO) {
+            setTable(ChangeTable(roomId, player.userId, index))
         }
 }

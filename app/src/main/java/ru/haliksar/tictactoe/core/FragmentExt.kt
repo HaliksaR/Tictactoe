@@ -11,6 +11,11 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 
+inline fun <reified T> Fragment.getArgument(key: String): T =
+    (arguments?.get(key) as? T)
+        ?: throw IllegalArgumentException("arguments $key not found")
+
+
 inline fun Fragment.toast(@StringRes message: Int) {
     toast(getString(message))
 }

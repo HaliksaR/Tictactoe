@@ -4,9 +4,9 @@ import ru.haliksar.tictactoe.domain.entity.Room
 
 interface RoomRepository {
 
-    suspend fun create(userId: String): Long
+    suspend fun create(): Long
 
-    suspend fun get(roomId: Long, userId: String): Room
+    suspend fun get(roomId: Long): Room
 
-    suspend fun setTable(roomId: Long, userId: String, index: Int): Room
+    suspend fun setTable(roomId: Long, index: Int): Room
 }

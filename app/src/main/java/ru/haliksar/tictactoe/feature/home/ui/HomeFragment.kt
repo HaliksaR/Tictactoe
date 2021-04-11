@@ -4,10 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.haliksar.tictactoe.R
 import ru.haliksar.tictactoe.core.*
@@ -19,7 +16,7 @@ class HomeFragment : BindingFragment<HomeFragmentBinding>() {
 
     private val viewModel by viewModel<HomeViewModel>()
 
-    private val _actionFlow = MutableSharedFlow<HomeAction>()
+    private val _actionFlow = MutableStateFlow<HomeAction>(HomeAction.SetNickName)
 
     override fun binding(
         inflater: LayoutInflater,
@@ -39,10 +36,11 @@ class HomeFragment : BindingFragment<HomeFragmentBinding>() {
         binding.roomBtn.bindClick()
             .onEach {
                 val roomId = binding.roomIdInput.text?.toString()?.toLongOrNull()
+                val nickname = binding.nickname.text?.toString()
                 if (roomId != null) {
-                    _actionFlow.emit(HomeAction.GoToRoom(roomId))
+                    _actionFlow.emit(HomeAction.GoToRoom(roomId, nickname))
                 } else {
-                    _actionFlow.emit(HomeAction.CreateRoom)
+                    _actionFlow.emit(HomeAction.CreateRoom(nickname))
                 }
             }.launchWhenStarted(lifecycleScope)
     }
@@ -63,6 +61,9 @@ class HomeFragment : BindingFragment<HomeFragmentBinding>() {
     private fun subscribeState(states: Flow<HomeState>) {
         states.onEach { state ->
             when (state) {
+                is HomeState.GetNickNameSuccess -> {
+                    binding.nickname.setText(state.nickname)
+                }
                 is HomeState.CreateRoomSuccess -> {
                     contentEnable(true)
                     binding.roomIdInput.setText(state.roomId.toString())
@@ -98,9 +99,7 @@ class HomeFragment : BindingFragment<HomeFragmentBinding>() {
     private fun subscribeSideEffect(sideEffects: Flow<HomeSideEffect>) {
         sideEffects.onEach { sideEffect ->
             when (sideEffect) {
-                is HomeSideEffect.ShowToast -> {
-                    toast("ShowToast")
-                }
+                is HomeSideEffect.ShowToast -> toast(sideEffect.message)
             }
         }.launchWhenStarted(lifecycleScope)
     }

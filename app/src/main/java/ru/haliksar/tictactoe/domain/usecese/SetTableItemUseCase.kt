@@ -7,10 +7,6 @@ class SetTableItemUseCase(
     private val repository: RoomRepository
 ) {
 
-    suspend operator fun invoke(
-        roomId: Long,
-        userId: String,
-        index: Int
-    ): Room =
-        repository.setTable(roomId, userId, index)
+    suspend operator fun invoke(roomId: Long, index: Int): Room =
+        repository.setTable(roomId, index)
 }

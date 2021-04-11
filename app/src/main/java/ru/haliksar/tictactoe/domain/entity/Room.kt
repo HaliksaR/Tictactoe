@@ -1,23 +1,33 @@
 package ru.haliksar.tictactoe.domain.entity
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-
+@JsonClass(generateAdapter = true)
 data class Room(
     @Json(name = "id") val id: Long,
-    @Json(name = "status") val status: RoomStatus,
     @Json(name = "players") val players: List<RoomPlayer>,
+    @Json(name = "status") val status: Status,
     @Json(name = "table") val table: List<Marker?>
 )
 
-var mockRoom =
-    Room(
-        id = 122,
-        status = RoomStatus.ACTIVE,
-        players = listOf(RoomPlayer(id = "4345", Marker.O), RoomPlayer(id = "4345", Marker.X)),
-        table = listOf(
-            Marker.O, Marker.O, Marker.X,
-            null, null, null,
-            null, null, null,
-        )
-    )
+@JsonClass(generateAdapter = true)
+data class RoomId(
+    @Json(name = "roomId") val roomId: Long,
+)
+
+enum class Status {
+    @Json(name = "ACTIVE")
+    ACTIVE,
+    @Json(name = "FULL")
+    FULL,
+    @Json(name = "WIN")
+    WIN
+}
+
+enum class Marker {
+    @Json(name = "O")
+    O,
+    @Json(name = "X")
+    X,
+}
