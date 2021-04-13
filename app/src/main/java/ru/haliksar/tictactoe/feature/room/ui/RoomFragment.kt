@@ -48,14 +48,14 @@ class RoomFragment : BindingFragment<RoomFragmentBinding>() {
                     content.isVisible = false
                     contentLoading.isVisible = true
                     contentError.isVisible = false
-                    contentWin?.isVisible = false
+                    contentWin.isVisible = false
                     loadingMessage.text = getString(state.message)
                 }
                 is RoomState.Error -> {
                     content.isVisible = false
                     contentLoading.isVisible = false
                     contentError.isVisible = true
-                    contentWin?.isVisible = false
+                    contentWin.isVisible = false
                     errorMessage.text = state.message
                 }
                 RoomState.NavigateBack -> {
@@ -65,7 +65,7 @@ class RoomFragment : BindingFragment<RoomFragmentBinding>() {
                     content.isVisible = true
                     contentLoading.isVisible = false
                     contentError.isVisible = false
-                    contentWin?.isVisible = false
+                    contentWin.isVisible = false
                     renderTitle(state.players)
                     renderTable(state.table, state.players.first.move)
                 }
@@ -73,8 +73,8 @@ class RoomFragment : BindingFragment<RoomFragmentBinding>() {
                     content.isVisible = false
                     contentLoading.isVisible = false
                     contentError.isVisible = false
-                    contentWin?.isVisible = true
-                    winMessage?.text = winnerText(state.winners)
+                    contentWin.isVisible = true
+                    winMessage.text = winnerText(state.winners)
                 }
             }
         }.launchWhenStarted(lifecycleScope)
@@ -173,9 +173,9 @@ class RoomFragment : BindingFragment<RoomFragmentBinding>() {
             .onEach {
                 _actionFlow.emit(RoomAction.GetRoom)
             }.launchWhenStarted(lifecycleScope)
-        exitBtn?.bindClick()
-           ?.onEach {
+        exitBtn.bindClick()
+           .onEach {
                 _actionFlow.emit(RoomAction.BackPressed)
-            }?.launchWhenStarted(lifecycleScope)
+            }.launchWhenStarted(lifecycleScope)
     }
 }
