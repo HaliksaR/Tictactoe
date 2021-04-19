@@ -10,4 +10,6 @@ val DomainModule = module {
     single { SetNickNameUseCase(get()) }
     single { SetTableItemUseCase(get()) }
     single { IsCurrentUserUseCase(get()) }
+    single { SendRoomMessageUseCase(get()) }
+    single { GetRoomMessagesUseCase(get()) }
 }

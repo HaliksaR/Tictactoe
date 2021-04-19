@@ -13,9 +13,7 @@ import ru.haliksar.tictactoe.core.launchCatching
 import ru.haliksar.tictactoe.domain.entity.Room
 import ru.haliksar.tictactoe.domain.entity.RoomPlayer
 import ru.haliksar.tictactoe.domain.entity.Status
-import ru.haliksar.tictactoe.domain.usecese.GetRoomUseCase
-import ru.haliksar.tictactoe.domain.usecese.IsCurrentUserUseCase
-import ru.haliksar.tictactoe.domain.usecese.SetTableItemUseCase
+import ru.haliksar.tictactoe.domain.usecese.*
 import ru.haliksar.tictactoe.feature.room.ui.RoomAction
 import java.io.EOFException
 

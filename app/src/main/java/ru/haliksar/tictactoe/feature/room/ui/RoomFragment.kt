@@ -13,13 +13,15 @@ import ru.haliksar.tictactoe.core.*
 import ru.haliksar.tictactoe.databinding.RoomFragmentBinding
 import ru.haliksar.tictactoe.domain.entity.Marker
 import ru.haliksar.tictactoe.domain.entity.RoomPlayer
-import ru.haliksar.tictactoe.feature.room.presentation.RoomSideEffect
-import ru.haliksar.tictactoe.feature.room.presentation.RoomState
-import ru.haliksar.tictactoe.feature.room.presentation.RoomViewModel
+import ru.haliksar.tictactoe.feature.room.presentation.*
 
 class RoomFragment : BindingFragment<RoomFragmentBinding>() {
 
     private val viewModel by viewModel<RoomViewModel>(
+        parameters = { parametersOf(getArgument("ROOM_ID")) }
+    )
+
+    private val messageViewModel by viewModel<RoomMessageViewModel>(
         parameters = { parametersOf(getArgument("ROOM_ID")) }
     )
 
@@ -35,10 +37,23 @@ class RoomFragment : BindingFragment<RoomFragmentBinding>() {
         with(binding) {
             roomId.text = getArgument<Long>("ROOM_ID").toString()
             viewModel.subscribeAction(_actionFlow.asSharedFlow())
+            messageViewModel.subscribeAction(_actionFlow.asSharedFlow())
             subscribeState(viewModel.stateFlow)
+            subscribeMessageState(messageViewModel.stateFlow)
             subscribeSideEffect(viewModel.sideEffectFlow)
+            subscribeSideEffect(messageViewModel.sideEffectFlow)
             subscribeBtn()
         }
+    }
+
+    private fun RoomFragmentBinding.subscribeMessageState(states: Flow<RoomMessageState>) {
+        states.onEach { state ->
+            when(state) {
+                is RoomMessageState.Error -> TODO()
+                is RoomMessageState.Loading -> TODO()
+                is RoomMessageState.RunMessages -> TODO()
+            }
+        }.launchWhenStarted(lifecycleScope)
     }
 
     private fun RoomFragmentBinding.subscribeState(states: Flow<RoomState>) {
@@ -158,6 +173,9 @@ class RoomFragment : BindingFragment<RoomFragmentBinding>() {
                             _actionFlow.value = RoomAction.NavigateDialogCancel
                         }
                     }
+                }
+                is RoomSideEffect.ShowToast -> {
+                    sideEffect.message?.let(::toast)
                 }
             }
         }.launchWhenStarted(lifecycleScope)

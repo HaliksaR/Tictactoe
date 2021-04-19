@@ -6,4 +6,5 @@ sealed class RoomAction {
     data class ChangeTable(val index: Int) : RoomAction()
     object NavigateDialogOk : RoomAction()
     object NavigateDialogCancel : RoomAction()
+    data class SendMessage(val message: String) : RoomAction()
 }
