@@ -3,13 +3,12 @@ package ru.haliksar.tictactoe.backend.controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import ru.haliksar.tictactoe.backend.dto.ChatDto;
+import ru.haliksar.tictactoe.backend.dto.RoomCreateDto;
 import ru.haliksar.tictactoe.backend.dto.RoomIdDto;
 import ru.haliksar.tictactoe.backend.dto.RoomLoginDto;
 import ru.haliksar.tictactoe.backend.dto.RoomTableMoveDto;
@@ -24,9 +23,8 @@ public class SyncController {
 
     @PostMapping("/create")
     @ApiOperation("Создание комнаты")
-    public RoomIdDto createRoom(@ApiParam(value = "Id пользователя создателя комнаты", required = true) @RequestParam(name = "userId")
-                                        String userId) {
-        return roomService.createRoomSync(userId);
+    public RoomIdDto createRoom(@RequestBody RoomCreateDto createDto) {
+        return roomService.createRoomSync(createDto);
     }
 
     @PostMapping("/connect")

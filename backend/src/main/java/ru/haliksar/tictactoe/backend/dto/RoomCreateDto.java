@@ -3,8 +3,7 @@ package ru.haliksar.tictactoe.backend.dto;
 import lombok.Data;
 
 @Data
-public class RoomLoginDto {
+public class RoomCreateDto {
     private String userId;
-    private long roomId;
     private String nickname;
 }

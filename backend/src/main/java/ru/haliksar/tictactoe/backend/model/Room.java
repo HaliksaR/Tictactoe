@@ -1,6 +1,8 @@
 package ru.haliksar.tictactoe.backend.model;
 
+import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -12,6 +14,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import lombok.Data;
 import ru.haliksar.tictactoe.backend.exception.RoomException;
@@ -28,6 +32,12 @@ public class Room {
 
     @ManyToMany
     private List<RoomPlayer> players = new ArrayList<>();
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date getPlayer1 = new Date(Clock.systemUTC().millis());
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date getPlayer2 = new Date(Clock.systemUTC().millis());
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "room")
     private List<RoomTable> table = new ArrayList<RoomTable>() {

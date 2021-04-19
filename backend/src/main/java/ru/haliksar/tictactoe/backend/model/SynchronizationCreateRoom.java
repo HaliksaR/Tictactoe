@@ -25,13 +25,16 @@ public class SynchronizationCreateRoom {
 
     private String userId;
 
+    private String nickname;
+
     private int serverPort;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date postDate = new Date(Clock.systemUTC().millis());
 
-    public SynchronizationCreateRoom(String userId, int serverPort) {
+    public SynchronizationCreateRoom(String userId, int serverPort, String nickname) {
         this.userId = userId;
         this.serverPort = serverPort;
+        this.nickname = nickname;
     }
 }
