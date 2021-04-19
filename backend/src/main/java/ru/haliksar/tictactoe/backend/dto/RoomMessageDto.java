@@ -9,7 +9,7 @@ import lombok.Data;
 
 @Data
 public class RoomMessageDto {
-    private int userId;
+    private String nickname;
 
     private String message;
 
