@@ -13,6 +13,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import ru.haliksar.tictactoe.backend.dto.ChatDto;
+import ru.haliksar.tictactoe.backend.dto.PlayerNicknameDto;
+import ru.haliksar.tictactoe.backend.dto.RoomCreateDto;
 import ru.haliksar.tictactoe.backend.dto.RoomDto;
 import ru.haliksar.tictactoe.backend.dto.RoomIdDto;
 import ru.haliksar.tictactoe.backend.dto.RoomLoginDto;
@@ -29,9 +31,8 @@ public class RoomController {
 
     @PostMapping("/create")
     @ApiOperation("Создание комнаты")
-    public RoomIdDto createRoom(@ApiParam(value = "Id пользователя создателя комнаты", required = true) @RequestParam(name = "userId")
-                                            String userId) {
-        return roomService.createRoom(userId);
+    public RoomIdDto createRoom(@RequestBody RoomCreateDto roomCreateDto) {
+        return roomService.createRoom(roomCreateDto);
     }
 
     @PostMapping("/setTable")
@@ -55,7 +56,13 @@ public class RoomController {
     @GetMapping("/get-messages")
     @ApiOperation("Получение чата комнаты")
     public List<RoomMessageDto> getRoomMessages(@ApiParam(value = "Id комнаты", required = true) @RequestParam(name = "roomId")
-                                   int roomId) {
+                                                        int roomId) {
         return roomService.getRoomMessages(roomId);
+    }
+
+    @GetMapping("/get-nickname")
+    @ApiOperation("Получение никнейма")
+    public PlayerNicknameDto getNickName(@RequestParam String userId) {
+        return roomService.getNickName(userId);
     }
 }

@@ -26,6 +26,8 @@ public class RoomChat {
 
     private String userId;
 
+    private String nickname;
+
     @Size(max = 500, message = "А поменьше 500 символов нельзя?")
     private String message;
 
