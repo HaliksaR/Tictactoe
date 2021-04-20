@@ -14,12 +14,14 @@ import lombok.RequiredArgsConstructor;
 import ru.haliksar.tictactoe.backend.dto.ChatDto;
 import ru.haliksar.tictactoe.backend.dto.PlayerNicknameDto;
 import ru.haliksar.tictactoe.backend.dto.RoomCreateDto;
+import ru.haliksar.tictactoe.backend.dto.RoomCreateSyncDto;
 import ru.haliksar.tictactoe.backend.dto.RoomDto;
 import ru.haliksar.tictactoe.backend.dto.RoomIdDto;
 import ru.haliksar.tictactoe.backend.dto.RoomLoginDto;
 import ru.haliksar.tictactoe.backend.dto.RoomMessageDto;
 import ru.haliksar.tictactoe.backend.dto.RoomTableMoveDto;
 import ru.haliksar.tictactoe.backend.event.events.SynchronizationCreateRoomEvent;
+import ru.haliksar.tictactoe.backend.event.events.SynchronizationGetRoomEvent;
 import ru.haliksar.tictactoe.backend.event.events.SynchronizationLoginRoomEvent;
 import ru.haliksar.tictactoe.backend.event.events.SynchronizationSendMessageEvent;
 import ru.haliksar.tictactoe.backend.event.events.SynchronizationSetTableEvent;
@@ -32,12 +34,12 @@ import ru.haliksar.tictactoe.backend.model.RoomTable;
 import ru.haliksar.tictactoe.backend.repository.RoomCharRepository;
 import ru.haliksar.tictactoe.backend.repository.RoomRepository;
 import ru.haliksar.tictactoe.backend.repository.RoomTableRepository;
+import ru.haliksar.tictactoe.backend.utils.SecureRandomSequenceGenerator;
 import ru.haliksar.tictactoe.backend.utils.dtoTransform.RoomDtoTransformService;
 
 import static ru.haliksar.tictactoe.backend.model.RoomStatus.ACTIVE;
 import static ru.haliksar.tictactoe.backend.model.RoomStatus.FULL;
 import static ru.haliksar.tictactoe.backend.model.RoomStatus.WIN;
-
 
 @Service
 @RequiredArgsConstructor
@@ -54,22 +56,35 @@ public class RoomService {
 
     private final ApplicationEventPublisher eventPublisher;
 
+    private final SecureRandomSequenceGenerator randomSequenceGenerator;
+
     public Room getRoom(long roomId) {
         return roomRepository.findById(roomId)
                 .orElseThrow(() -> new RoomException("Комната не найдена"));
     }
 
     public RoomIdDto createRoom(RoomCreateDto createDto) {
-        eventPublisher.publishEvent(new SynchronizationCreateRoomEvent(createDto));
-        return createRoomSync(createDto);
-    }
-
-    public RoomIdDto createRoomSync(RoomCreateDto createDto) {
         Room room = new Room();
+        long id;
+        do {
+            id = Long.parseLong(randomSequenceGenerator.getRandomIntSequence());
+        } while (roomRepository.findById(id).isPresent());
+        room.setId(id);
         room.setRoomStatus(ACTIVE);
         RoomPlayer roomPlayer = roomPlayerService.createPlayer(createDto.getUserId(), createDto.getNickname(), Marker.X, true);
         room.getPlayers().add(roomPlayer);
-        return new RoomIdDto(roomRepository.save(room).getId());
+        roomRepository.save(room);
+        eventPublisher.publishEvent(new SynchronizationCreateRoomEvent(new RoomCreateSyncDto(id, createDto.getUserId(), createDto.getNickname())));
+        return new RoomIdDto(id);
+    }
+
+    public void createRoomSync(RoomCreateSyncDto createDto) {
+        Room room = new Room();
+        room.setId(createDto.getRoomId());
+        room.setRoomStatus(ACTIVE);
+        RoomPlayer roomPlayer = roomPlayerService.createPlayer(createDto.getUserId(), createDto.getNickname(), Marker.X, true);
+        room.getPlayers().add(roomPlayer);
+        roomRepository.save(room);
     }
 
     public void loginRoom(RoomLoginDto roomLoginDto) {
@@ -207,7 +222,17 @@ public class RoomService {
         RoomPlayer roomPlayer = roomPlayerService.getPlayer(roomLoginDto.getUserId());
         updateGetRoomTime(room, roomPlayer.getMarker());
         checkLeaveRoom(room);
+        eventPublisher.publishEvent(new SynchronizationGetRoomEvent(roomLoginDto));
         return roomDtoTransformService.getRoomDto(getRoom(roomLoginDto.getRoomId()));
+    }
+
+    public void getRoomDtoSync(RoomLoginDto roomLoginDto) {
+        Room room = roomRepository.findById(roomLoginDto.getRoomId()).orElse(null);
+        RoomPlayer roomPlayer = roomPlayerService.getPlayer(roomLoginDto.getUserId());
+        if (roomPlayer == null || room == null) {
+            return;
+        }
+        updateGetRoomTime(room, roomPlayer.getMarker());
     }
 
     private void checkLeaveRoom(Room room) {

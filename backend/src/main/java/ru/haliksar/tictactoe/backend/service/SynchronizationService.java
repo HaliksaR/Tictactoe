@@ -17,7 +17,7 @@ import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.haliksar.tictactoe.backend.dto.ChatDto;
-import ru.haliksar.tictactoe.backend.dto.RoomCreateDto;
+import ru.haliksar.tictactoe.backend.dto.RoomCreateSyncDto;
 import ru.haliksar.tictactoe.backend.dto.RoomLoginDto;
 import ru.haliksar.tictactoe.backend.dto.RoomTableMoveDto;
 import ru.haliksar.tictactoe.backend.model.SynchronizationCreateRoom;
@@ -49,10 +49,10 @@ public class SynchronizationService {
     private int port2;
 
     @Transactional
-    public void synchronizationCreateRoom(RoomCreateDto createDto) {
+    public void synchronizationCreateRoom(RoomCreateSyncDto createDto) {
         Unirest.setTimeouts(0, 0);
 
-        String request = "{\n  \"nickname\": \"" + createDto.getNickname() + "\",\n  \"userId\": \"" + createDto.getUserId() + "\"\n}";
+        String request = "{\n  \"nickname\": \"" + createDto.getNickname() + "\",\n  \"roomId\": " + createDto.getRoomId() + ",\n  \"userId\": \"" + createDto.getUserId() + "\"\n}";
 
         try {
             Unirest.post("http://localhost:" + port1 + "/sync/create")
@@ -270,6 +270,31 @@ public class SynchronizationService {
             } catch (UnirestException e) {
                 break;
             }
+        }
+    }
+
+    @Transactional
+    public void synchronizationGetRoom(RoomLoginDto roomLoginDto) {
+        Unirest.setTimeouts(0, 0);
+
+        String request = "{\n  \"nickname\": \"" + roomLoginDto.getNickname() + "\",\n  \"roomId\": " + roomLoginDto.getRoomId() + ",\n  \"userId\": \"" + roomLoginDto.getUserId() + "\"\n}";
+
+        try {
+            Unirest.post("http://localhost:" + port1 + "/sync/get")
+                    .header("Content-Type", "application/json")
+                    .body(request)
+                    .asString();
+        } catch (UnirestException e) {
+            log.info("port 1 недоступен");
+        }
+
+        try {
+            Unirest.post("http://localhost:" + port2 + "/sync/get")
+                    .header("Content-Type", "application/json")
+                    .body(request)
+                    .asString();
+        } catch (UnirestException e) {
+            log.info("port 2 недоступен");
         }
     }
 
