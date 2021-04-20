@@ -1,19 +1,27 @@
 package ru.haliksar.tictactoe.feature.room.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import ru.haliksar.tictactoe.core.*
 import ru.haliksar.tictactoe.databinding.RoomFragmentBinding
 import ru.haliksar.tictactoe.domain.entity.Marker
 import ru.haliksar.tictactoe.domain.entity.RoomPlayer
-import ru.haliksar.tictactoe.feature.room.presentation.*
+import ru.haliksar.tictactoe.feature.chat.ui.RoomChatFragment
+import ru.haliksar.tictactoe.feature.room.presentation.RoomSideEffect
+import ru.haliksar.tictactoe.feature.room.presentation.RoomState
+import ru.haliksar.tictactoe.feature.room.presentation.RoomViewModel
 
 class RoomFragment : BindingFragment<RoomFragmentBinding>() {
 
@@ -21,11 +29,7 @@ class RoomFragment : BindingFragment<RoomFragmentBinding>() {
         parameters = { parametersOf(getArgument("ROOM_ID")) }
     )
 
-    private val messageViewModel by viewModel<RoomMessageViewModel>(
-        parameters = { parametersOf(getArgument("ROOM_ID")) }
-    )
-
-    private val _actionFlow = MutableStateFlow<RoomAction>(RoomAction.GetRoom)
+    private val _actionFlow = MutableSharedFlow<RoomAction>()
 
     override fun binding(
         inflater: LayoutInflater,
@@ -37,28 +41,19 @@ class RoomFragment : BindingFragment<RoomFragmentBinding>() {
         with(binding) {
             roomId.text = getArgument<Long>("ROOM_ID").toString()
             viewModel.subscribeAction(_actionFlow.asSharedFlow())
-            messageViewModel.subscribeAction(_actionFlow.asSharedFlow())
             subscribeState(viewModel.stateFlow)
-            subscribeMessageState(messageViewModel.stateFlow)
             subscribeSideEffect(viewModel.sideEffectFlow)
-            subscribeSideEffect(messageViewModel.sideEffectFlow)
             subscribeBtn()
         }
-    }
-
-    private fun RoomFragmentBinding.subscribeMessageState(states: Flow<RoomMessageState>) {
-        states.onEach { state ->
-            when(state) {
-                is RoomMessageState.Error -> TODO()
-                is RoomMessageState.Loading -> TODO()
-                is RoomMessageState.RunMessages -> TODO()
-            }
-        }.launchWhenStarted(lifecycleScope)
+        lifecycleScope.launchWhenCreated {
+            _actionFlow.emit(RoomAction.GetRoom)
+        }
     }
 
     private fun RoomFragmentBinding.subscribeState(states: Flow<RoomState>) {
         states.onEach { state ->
-            when(state) {
+            Log.d("subscribeState", state.toString())
+            when (state) {
                 is RoomState.Loading -> {
                     content.isVisible = false
                     contentLoading.isVisible = true
@@ -91,6 +86,10 @@ class RoomFragment : BindingFragment<RoomFragmentBinding>() {
                     contentWin.isVisible = true
                     winMessage.text = winnerText(state.winners)
                 }
+                RoomState.NavigateTOMessage -> {
+                    RoomChatFragment.newInstance(getArgument("ROOM_ID"))
+                        .show(childFragmentManager, "TAG")
+                }
             }
         }.launchWhenStarted(lifecycleScope)
     }
@@ -118,7 +117,7 @@ class RoomFragment : BindingFragment<RoomFragmentBinding>() {
     private fun playerText(player: RoomPlayer): String =
         "Player ${player.nickname} [${player.marker}] status : ${getPlayerStatus(player.move)}"
 
-    private fun getPlayerStatus(move: Boolean) : String =
+    private fun getPlayerStatus(move: Boolean): String =
         if (move) {
             "Move"
         } else {
@@ -146,7 +145,7 @@ class RoomFragment : BindingFragment<RoomFragmentBinding>() {
         when (marker) {
             Marker.O -> "O"
             Marker.X -> "X"
-            else ->  ""
+            else -> ""
         }
 
 
@@ -164,13 +163,19 @@ class RoomFragment : BindingFragment<RoomFragmentBinding>() {
                     showDialog {
                         setTitle(sideEffect.message)
                         setPositiveButton("ok") { _, _ ->
-                            _actionFlow.value = RoomAction.NavigateDialogOk
+                            lifecycleScope.launch {
+                                _actionFlow.emit(RoomAction.NavigateDialogOk)
+                            }
                         }
                         setOnCancelListener {
-                            _actionFlow.value = RoomAction.NavigateDialogCancel
+                            lifecycleScope.launch {
+                                _actionFlow.emit(RoomAction.NavigateDialogCancel)
+                            }
                         }
                         setOnDismissListener {
-                            _actionFlow.value = RoomAction.NavigateDialogCancel
+                            lifecycleScope.launch {
+                                _actionFlow.emit(RoomAction.NavigateDialogCancel)
+                            }
                         }
                     }
                 }
@@ -192,8 +197,12 @@ class RoomFragment : BindingFragment<RoomFragmentBinding>() {
                 _actionFlow.emit(RoomAction.GetRoom)
             }.launchWhenStarted(lifecycleScope)
         exitBtn.bindClick()
-           .onEach {
+            .onEach {
                 _actionFlow.emit(RoomAction.BackPressed)
+            }.launchWhenStarted(lifecycleScope)
+        roomMessages.bindClick()
+            .onEach {
+                _actionFlow.emit(RoomAction.ToMessage)
             }.launchWhenStarted(lifecycleScope)
     }
 }

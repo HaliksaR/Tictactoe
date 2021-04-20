@@ -16,5 +16,13 @@
     <fragment
         android:id="@+id/room"
         android:name="ru.haliksar.tictactoe.feature.room.ui.RoomFragment"
-        android:label="room" />
+        android:label="room">
+        <action
+            android:id="@+id/action_room_to_chat"
+            app:destination="@id/chat" />
+    </fragment>
+    <fragment
+        android:id="@+id/chat"
+        android:name="ru.haliksar.tictactoe.feature.chat.ui.RoomChatFragment"
+        android:label="RoomChatFragment" />
 </navigation>

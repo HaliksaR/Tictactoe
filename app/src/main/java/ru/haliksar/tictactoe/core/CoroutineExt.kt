@@ -11,12 +11,12 @@ fun CoroutineScope.launchCatching(
     job: suspend CoroutineScope.() -> Unit,
     catching: suspend (Throwable) -> Unit,
 ) = launch {
-        try {
-           job()
-        } catch (throwable: Throwable) {
-            catching(throwable)
-        }
+    try {
+        job()
+    } catch (throwable: Throwable) {
+        catching(throwable)
     }
+}
 
 fun <T> Flow<T>.launchWhenStarted(lifecycleScope: LifecycleCoroutineScope) {
     lifecycleScope.launchWhenStarted { collect() }

@@ -4,21 +4,16 @@ import com.squareup.moshi.Moshi
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.Authenticator
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.lang.reflect.Type
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
-import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
-private const val VALUE_TIMEOUT: Long = 5
 
 class Service(
     private val moshi: Moshi,
@@ -47,9 +42,16 @@ class Service(
 
     val nullOnEmptyConverterFactory = object : Converter.Factory() {
         fun converterFactory() = this
-        override fun responseBodyConverter(type: Type, annotations: Array<out Annotation>, retrofit: Retrofit) = object : Converter<ResponseBody, Any?> {
-            val nextResponseBodyConverter = retrofit.nextResponseBodyConverter<Any?>(converterFactory(), type, annotations)
-            override fun convert(value: ResponseBody) = if (value.contentLength() != 0L) nextResponseBodyConverter.convert(value) else null
+        override fun responseBodyConverter(
+            type: Type,
+            annotations: Array<out Annotation>,
+            retrofit: Retrofit
+        ) = object : Converter<ResponseBody, Any?> {
+            val nextResponseBodyConverter =
+                retrofit.nextResponseBodyConverter<Any?>(converterFactory(), type, annotations)
+
+            override fun convert(value: ResponseBody) =
+                if (value.contentLength() != 0L) nextResponseBodyConverter.convert(value) else null
         }
     }
 

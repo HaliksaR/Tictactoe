@@ -19,4 +19,6 @@
     <string name="nickname">nickname</string>
     <string name="incorrect_nickname">incorrect nickname</string>
     <string name="incorrect_room_id">incorrect room id</string>
+    <string name="enter">Enter</string>
+    <string name="messages">messages</string>
 </resources>

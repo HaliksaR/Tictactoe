@@ -189,6 +189,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:text="@string/exit_room" />
+
+            <Button
+                android:id="@+id/room_messages"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/messages" />
         </LinearLayout>
     </FrameLayout>
 </ScrollView>

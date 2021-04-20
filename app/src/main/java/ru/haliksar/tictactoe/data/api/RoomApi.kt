@@ -9,10 +9,10 @@ import ru.haliksar.tictactoe.domain.entity.*
 interface RoomApi {
 
     @POST("room/create")
-    suspend fun create(@Body body : Player): RoomId
+    suspend fun create(@Body body: Player): RoomId
 
     @POST("room/get")
-    suspend fun get(@Body body : LoginRoom): Room
+    suspend fun get(@Body body: LoginRoom): Room
 
     @POST("room/setTable")
     suspend fun setTable(@Body body: ChangeTable): Room

@@ -3,9 +3,7 @@ package ru.haliksar.tictactoe.feature.room.presentation
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import ru.haliksar.tictactoe.R
@@ -13,7 +11,9 @@ import ru.haliksar.tictactoe.core.launchCatching
 import ru.haliksar.tictactoe.domain.entity.Room
 import ru.haliksar.tictactoe.domain.entity.RoomPlayer
 import ru.haliksar.tictactoe.domain.entity.Status
-import ru.haliksar.tictactoe.domain.usecese.*
+import ru.haliksar.tictactoe.domain.usecese.GetRoomUseCase
+import ru.haliksar.tictactoe.domain.usecese.IsCurrentUserUseCase
+import ru.haliksar.tictactoe.domain.usecese.SetTableItemUseCase
 import ru.haliksar.tictactoe.feature.room.ui.RoomAction
 import java.io.EOFException
 
@@ -34,6 +34,7 @@ class RoomViewModel(
 
     fun subscribeAction(actions: Flow<RoomAction>) {
         actions.onEach { action ->
+            Log.d("subscribeAction", action.toString())
             when (action) {
                 RoomAction.BackPressed -> {
                     disconnectLoop()
@@ -46,6 +47,9 @@ class RoomViewModel(
                     _stateFlow.emit(RoomState.NavigateBack)
                 }
                 RoomAction.NavigateDialogCancel -> Unit
+                RoomAction.ToMessage -> {
+                    _stateFlow.emit(RoomState.NavigateTOMessage)
+                }
             }
         }.launchIn(viewModelScope)
     }
@@ -112,7 +116,8 @@ class RoomViewModel(
         try {
             loopUpdate?.cancel()
             loopUpdate = null
-        } catch (ignore: Exception) { }
+        } catch (ignore: Exception) {
+        }
     }
 
     private suspend fun handleError(throwable: Throwable) {

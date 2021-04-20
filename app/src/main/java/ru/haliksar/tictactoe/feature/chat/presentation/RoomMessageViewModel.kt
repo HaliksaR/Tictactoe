@@ -1,5 +1,6 @@
-package ru.haliksar.tictactoe.feature.room.presentation
+package ru.haliksar.tictactoe.feature.chat.presentation
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
@@ -8,7 +9,7 @@ import kotlinx.coroutines.flow.*
 import ru.haliksar.tictactoe.core.launchCatching
 import ru.haliksar.tictactoe.domain.usecese.GetRoomMessagesUseCase
 import ru.haliksar.tictactoe.domain.usecese.SendRoomMessageUseCase
-import ru.haliksar.tictactoe.feature.room.ui.RoomAction
+import ru.haliksar.tictactoe.feature.chat.ui.RoomAction
 
 class RoomMessageViewModel(
     private val roomId: Long,
@@ -26,10 +27,17 @@ class RoomMessageViewModel(
 
     fun subscribeAction(actions: Flow<RoomAction>) {
         actions.onEach { action ->
-/*            when (action) {
-                RoomAction.GetRoom -> connectLoop()
-                is RoomAction.SendMessage -> sendMessage(action.message)
-            }*/
+            when (action) {
+                RoomAction.GetMessages -> connectLoop()
+                is RoomAction.SendMessage -> {
+                    connectLoop()
+                    sendMessage(action.message)
+                }
+                RoomAction.BackPressed -> {
+                    disconnectLoop()
+                    _stateFlow.emit(RoomMessageState.NavigateBack)
+                }
+            }
         }.launchIn(viewModelScope)
     }
 
@@ -60,6 +68,7 @@ class RoomMessageViewModel(
     }
 
     private suspend fun handleError(throwable: Throwable) {
+        Log.e("TAG", throwable.stackTraceToString())
         _sideEffectFlow.emit(RoomSideEffect.ShowToast(throwable.message))
     }
 

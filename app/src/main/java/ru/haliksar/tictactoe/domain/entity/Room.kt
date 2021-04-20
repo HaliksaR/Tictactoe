@@ -19,8 +19,10 @@ data class RoomId(
 enum class Status {
     @Json(name = "ACTIVE")
     ACTIVE,
+
     @Json(name = "FULL")
     FULL,
+
     @Json(name = "WIN")
     WIN
 }
@@ -28,6 +30,7 @@ enum class Status {
 enum class Marker {
     @Json(name = "O")
     O,
+
     @Json(name = "X")
     X,
 }

@@ -3,7 +3,6 @@ package ru.haliksar.tictactoe.data.datasource
 import android.content.Context
 import android.content.SharedPreferences
 import ru.haliksar.tictactoe.domain.entity.Player
-import ru.haliksar.tictactoe.domain.entity.RoomPlayer
 import java.util.*
 
 interface UserLocalDataSource {

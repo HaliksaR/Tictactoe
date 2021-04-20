@@ -8,10 +8,11 @@ import org.koin.core.logger.Level
 import ru.haliksar.tictactoe.core.CoreModule
 import ru.haliksar.tictactoe.data.di.DataModule
 import ru.haliksar.tictactoe.domain.di.DomainModule
+import ru.haliksar.tictactoe.feature.chat.di.RoomChatModule
 import ru.haliksar.tictactoe.feature.home.di.HomeModule
 import ru.haliksar.tictactoe.feature.room.di.RoomModule
 
-class App: Application() {
+class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
@@ -22,6 +23,7 @@ class App: Application() {
             modules(DataModule + DomainModule)
             modules(HomeModule)
             modules(RoomModule)
+            modules(RoomChatModule)
         }
     }
 }
